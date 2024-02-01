@@ -3,7 +3,7 @@ import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
   activeMenuItem: MENU_ITEMS.PENCIL,
-  actionActionItem: null,
+  actionMenuItem: null,
 };
 
 export const menuSlice = createSlice({
@@ -14,7 +14,7 @@ export const menuSlice = createSlice({
       state.activeMenuItem = action.payload;
     },
     actionItemClick: (state, action) => {
-      state.actionActionItem = action.payload;
+      state.actionMenuItem = action.payload;
     },
   },
 });
