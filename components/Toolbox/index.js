@@ -8,7 +8,7 @@ import cx from "classnames";
 
 const Toolbox = () => {
   const dispatch = useDispatch();
-  const activeMenuItem = useSelector((state) => state.menu.activeMenuItem);
+  const { activeMenuItem } = useSelector((state) => state.menu);
   const { size, color: activeColor } = useSelector(
     (state) => state.toolbox[activeMenuItem]
   );

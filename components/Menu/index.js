@@ -1,11 +1,11 @@
 "use client";
 
 import {
-  faArrowLeft,
-  faArrowRight,
   faDownload,
   faEraser,
   faPencil,
+  faRedo,
+  faUndo,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import styles from "./index.module.css";
@@ -17,6 +17,7 @@ import cx from "classnames";
 const Menu = () => {
   const dispatch = useDispatch();
   const { activeMenuItem, actionMenuItem } = useSelector((state) => state.menu);
+  const { UNDO, REDO, DOWNLOAD } = useSelector((state) => state.toolbox);
 
   const handleMenuClick = (itemName) => {
     dispatch(menuItemClick(itemName));
@@ -46,19 +47,21 @@ const Menu = () => {
         <FontAwesomeIcon icon={faEraser} className={styles.icon} />
       </div>
       <div
-        className={styles.iconWrapper}
+        className={cx(styles.iconWrapper, { [styles.disable]: UNDO.disable })}
         onClick={() => handleActionItemClick(MENU_ITEMS.UNDO)}
       >
-        <FontAwesomeIcon icon={faArrowLeft} className={styles.icon} />
+        <FontAwesomeIcon icon={faUndo} className={styles.icon} />
       </div>
       <div
-        className={styles.iconWrapper}
+        className={cx(styles.iconWrapper, { [styles.disable]: REDO.disable })}
         onClick={() => handleActionItemClick(MENU_ITEMS.REDO)}
       >
-        <FontAwesomeIcon icon={faArrowRight} className={styles.icon} />
+        <FontAwesomeIcon icon={faRedo} className={styles.icon} />
       </div>
       <div
-        className={styles.iconWrapper}
+        className={cx(styles.iconWrapper, {
+          [styles.disable]: DOWNLOAD.disable,
+        })}
         onClick={() => handleActionItemClick(MENU_ITEMS.DOWNLOAD)}
       >
         <FontAwesomeIcon icon={faDownload} className={styles.icon} />

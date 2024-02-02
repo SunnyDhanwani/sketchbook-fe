@@ -2,13 +2,16 @@
 
 import { MENU_ITEMS } from "@/constants";
 import menuSlice, { actionItemClick } from "@/redux/slice/menuSlice";
+import { disableOrEnableActionButton } from "@/redux/slice/toolboxSlice";
 import { useEffect, useLayoutEffect, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
 const Board = () => {
   const dispatch = useDispatch();
   const canvasRef = useRef(null);
-  const shouldDraw = useRef(null);
+  const drawHistory = useRef([]);
+  const historyPointer = useRef(0);
+  const shouldDraw = useRef(false);
   const { activeMenuItem, actionMenuItem } = useSelector((state) => state.menu);
   const { color, size } = useSelector((state) => state.toolbox[activeMenuItem]);
 
@@ -17,18 +20,39 @@ const Board = () => {
 
     const canvas = canvasRef.current;
     const context = canvas.getContext("2d");
-    // set the ctx to draw beneath your current content
 
     if (actionMenuItem === MENU_ITEMS.DOWNLOAD) {
       // https://www.mikechambers.com/blog/2011/01/31/setting-the-background-color-when-generating-images-from-canvas-todataurl/0, 0, canvas.width, canvas.height);
 
       const URL = canvas.toDataURL("image/png", 1);
-      const a = document.createElement("a");
-      a.href = URL;
-      a.download = "sketch.png";
-      a.click();
-      dispatch(actionItemClick(null));
+      const anchor = document.createElement("a");
+      anchor.href = URL;
+      anchor.download = "sketch.png";
+      anchor.click();
+    } else if (
+      actionMenuItem === MENU_ITEMS.UNDO ||
+      actionMenuItem === MENU_ITEMS.REDO
+    ) {
+      if (actionMenuItem === MENU_ITEMS.UNDO) {
+        if (historyPointer.current >= 0) {
+          historyPointer.current -= 1;
+        }
+      } else if (
+        historyPointer.current < drawHistory.current.length - 1 &&
+        actionMenuItem === MENU_ITEMS.REDO
+      ) {
+        historyPointer.current += 1;
+      }
+
+      if (historyPointer.current < 0) {
+        context.clearRect(0, 0, canvas.width, canvas.height);
+      } else {
+        const imageData = drawHistory.current[historyPointer.current];
+        context.putImageData(imageData, 0, 0);
+      }
+    } else if (actionMenuItem === MENU_ITEMS.REDO) {
     }
+    dispatch(actionItemClick(null));
   }, [actionMenuItem, dispatch]);
 
   useEffect(() => {
@@ -76,6 +100,9 @@ const Board = () => {
 
     const handleMouseUp = () => {
       shouldDraw.current = false;
+      const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+      drawHistory.current.push(imageData);
+      historyPointer.current = drawHistory.current.length - 1;
     };
 
     canvas.addEventListener("mousedown", handleMouseDown);
